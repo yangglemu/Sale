@@ -1,0 +1,13 @@
+F:\Shopping\Sale\Sale\bin\Debug\Sale.exe.config
+F:\Shopping\Sale\Sale\bin\Debug\Sale.exe
+F:\Shopping\Sale\Sale\bin\Debug\Sale.pdb
+F:\Shopping\Sale\Sale\obj\Debug\Sale.Properties.Resources.resources
+F:\Shopping\Sale\Sale\obj\Debug\Sale.csproj.GenerateResource.Cache
+F:\Shopping\Sale\Sale\obj\Debug\Sale.exe
+F:\Shopping\Sale\Sale\obj\Debug\Sale.pdb
+F:\Shopping\Sale\Sale\obj\Debug\Sale.csprojResolveAssemblyReference.cache
+F:\Shopping\Sale\Sale\bin\Debug\MySql.Data.dll
+F:\Shopping\Sale\Sale\obj\Debug\Sale.Form_main.resources
+F:\Shopping\Sale\Sale\obj\Debug\Sale.Form_shouying.resources
+F:\Shopping\Sale\Sale\obj\Debug\Sale.Form_start.resources
+F:\Shopping\Sale\Sale\obj\Debug\Sale.Form_edit_je.resources
