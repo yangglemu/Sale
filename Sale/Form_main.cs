@@ -30,7 +30,9 @@ namespace Sale
         public static float x1;
         public static float x2;
         public static float x3;
+        private string SK = "";
         private const string windowtitle = "阳光服饰收银系统";
+        private DataGridView LastDataGridView;
         public Worker worker
         {
             get { return _worker; }
@@ -45,11 +47,17 @@ namespace Sale
             this.hybh = "no";
             this.zqfs = "折扣";
             this.isPrint = true;
-
+            
             printer = new PrintDocument();
             printer.PrintController = new StandardPrintController();
             printer.DocumentName = "收银小票";
             printer.PrintPage += printer_PrintPage;
+            printer.EndPrint += printer_EndPrint;
+        }
+
+        void printer_EndPrint(object sender, PrintEventArgs e)
+        {
+            
         }
 
         public void DrawLine(Graphics g, float x, float y)
@@ -81,7 +89,7 @@ namespace Sale
 
             x = 0.0f;
             y += rh + 0.5f;
-            string dj = "单号: " + this._djh;
+            string dj = "单号:  " + this._djh;
             e.Graphics.DrawString(dj, Form_main.font, Brushes.Black, x, y);//单据号
 
             y += rh;
@@ -96,8 +104,8 @@ namespace Sale
                     r.Cells[1].Value.ToString(),
                     Form_main.font, Brushes.Black, x, y);
                 float addx = 24f;
-                //if (r.Cells[1].Value.ToString().Length > 6)
-                //    addx = 26f;
+                if (r.Cells[1].Value.ToString().Length > 6)
+                    addx = 26f;
                 e.Graphics.DrawString(r.Cells[0].Value.ToString(),
                     Form_main.font, Brushes.Black, x + addx, y);
 
@@ -141,7 +149,7 @@ namespace Sale
             e.Graphics.DrawString("找零：" + this._zl.ToString("0.00"), font, Brushes.Black, yszl, y);
 
             y += 4.0f;
-            e.Graphics.DrawString("收银：" + this.worker.bh, font, Brushes.Black, x, y);//收银员
+            e.Graphics.DrawString("收银：" + this.worker.bh + this.SK, font, Brushes.Black, x, y);//收银员
 
             e.Graphics.DrawString("地址：天门多宝", font, Brushes.Black, yszl, y);
 
@@ -209,8 +217,11 @@ namespace Sale
                     TuiHuo(e);
                     break;
                 //增加商品数量
-                case Keys.J:
-                    EditDataGridViewCurrentCroSL(e);
+                case Keys.Add:
+                    EditDataGridViewCurrentCroSL_Add(e);
+                    break;
+                case Keys.Subtract:
+                    EditDataGridViewCurrentCroSL_Subtract(e);
                     break;
                 //编号商品金额
                 case Keys.E:
@@ -295,10 +306,10 @@ namespace Sale
             }
         }
 
-        private void EditDataGridViewCurrentCroSL(KeyEventArgs e)
+        private void EditDataGridViewCurrentCroSL_Add(KeyEventArgs e)
         {
             if (e.Control)
-            {
+            {                
                 if (this.dataGridView.CurrentRow != null)
                 {
                     DataGridViewRow row = this.dataGridView.CurrentRow;
@@ -308,6 +319,32 @@ namespace Sale
                     if (sl > 0)
                     {
                         ++sl;
+                        float je;
+                        float sj = float.Parse(row.Cells[2].Value.ToString());
+                        float zq = float.Parse(row.Cells[3].Value.ToString());
+                        je = sl * sj * zq;
+                        je = (float)Math.Round(je, 0, MidpointRounding.AwayFromZero);
+                        row.Cells[4].Value = sl;
+                        row.Cells[5].Value = je.ToString("0.00");
+                        this.Add();
+                    }
+                }
+            }
+        }
+
+        private void EditDataGridViewCurrentCroSL_Subtract(KeyEventArgs e)
+        {
+            if (e.Control)
+            {
+                if (this.dataGridView.CurrentRow != null)
+                {
+                    DataGridViewRow row = this.dataGridView.CurrentRow;
+                    if (row == null)
+                        return;
+                    int sl = int.Parse(row.Cells[4].Value.ToString());
+                    if (sl > 1)
+                    {
+                        --sl;
                         float je;
                         float sj = float.Parse(row.Cells[2].Value.ToString());
                         float zq = float.Parse(row.Cells[3].Value.ToString());
@@ -352,6 +389,9 @@ namespace Sale
                 string s = row.Cells[0].Value.ToString();
                 if (s == tm)
                 {
+                    //判断折扣是否为1.00，如果是，则数量累加
+                    var _zq = row.Cells[3].Value.ToString();
+                    if (_zq != "1.00") return false;
                     //sl
                     int sl = int.Parse(row.Cells[4].Value.ToString());
                     if (sl > 0)
@@ -487,10 +527,16 @@ namespace Sale
         /// <summary>
         /// 插入数据库
         /// </summary>
-        public void InsertIntoDatabase()
+        public void InsertIntoDatabase(bool isSK)
         {
             MySqlTransaction transaction = Form_main.Connection.BeginTransaction();
-
+            var sk = "n";
+            this.SK = "";
+            if (isSK)
+            {
+                sk = "y";
+                this.SK = "(卡)";
+            }
             string djh;//编号max
             int bh;
             try
@@ -503,7 +549,7 @@ namespace Sale
                 this._djh = djh = DateTime.Now.ToString("yyyyMMddHHmmss") + djh;
 
                 //插入sale_db销售单笔表
-                Form_main.Command.CommandText = "insert into sale_db(djh,sl,je,ss,zl,bh,hy,rq,syy) values(";
+                Form_main.Command.CommandText = "insert into sale_db(djh,sl,je,ss,zl,bh,hy,rq,syy,sk) values(";
                 Form_main.Command.CommandText += "'" + djh + "',";
                 Form_main.Command.CommandText += this.textBox_js.Text + ",";
                 Form_main.Command.CommandText += this.textBox_je.Text + ",";
@@ -512,7 +558,8 @@ namespace Sale
                 Form_main.Command.CommandText += bh.ToString() + ",";
                 Form_main.Command.CommandText += "'" + this.hybh + "',";
                 Form_main.Command.CommandText += "'" + DateTime.Now.ToString() + "',";
-                Form_main.Command.CommandText += "'" + this.worker.bh + "')";
+                Form_main.Command.CommandText += "'" + this.worker.bh + "',";
+                Form_main.Command.CommandText += "'" + sk + "')";
                 Form_main.Command.ExecuteNonQuery();
 
                 //插入sale_mx销售明细表                   
@@ -558,11 +605,14 @@ namespace Sale
 
         public void ResetData()
         {
+            //备份上笔交易数据备用
+            //...
             //清理环境
             this.dataGridView.Rows.Clear();
             this.textBox_js.Text = "";
             this.textBox_je.Text = "";
             this.zqfs = "折扣";
+            this.SK = "";
             this.statusLabel_huiyuan.Text = this.not_hy;
 
         }
@@ -653,7 +703,7 @@ namespace Sale
                     break;
 
                 case Keys.J:
-                    this.EditDataGridViewCurrentCroSL(e);
+                    this.EditDataGridViewCurrentCroSL_Add(e);
                     break;
 
                 case Keys.E:
