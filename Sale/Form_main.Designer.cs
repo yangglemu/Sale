@@ -318,6 +318,7 @@
             this.textBox_tm.TabIndex = 1;
             this.textBox_tm.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_tm.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_tm_KeyDown);
+            this.textBox_tm.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox_tm_KeyPress);
             // 
             // Form_main
             // 
@@ -332,7 +333,7 @@
             this.MaximizeBox = false;
             this.Name = "Form_main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "阳光服饰收银系统";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form_main_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_main_FormClosed);
             this.Load += new System.EventHandler(this.Form_main_Load);
             this.Shown += new System.EventHandler(this.Form_main_Shown);

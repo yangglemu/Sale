@@ -107,7 +107,9 @@
             // 
             // textBox_zl
             // 
+            this.textBox_zl.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.textBox_zl.Font = new System.Drawing.Font("微软雅黑", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.textBox_zl.ForeColor = System.Drawing.Color.Yellow;
             this.textBox_zl.Location = new System.Drawing.Point(323, 116);
             this.textBox_zl.Name = "textBox_zl";
             this.textBox_zl.ReadOnly = true;

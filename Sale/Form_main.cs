@@ -5,11 +5,14 @@ using System.Windows.Forms;
 using System.Drawing.Printing;
 using System.Drawing.Drawing2D;
 using MySql.Data.MySqlClient;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Sale
 {
     public partial class Form_main : Form
     {
+        public static string printerName = string.Empty;
         public PrintDocument printer;
         private bool isHuiYuan;               //当前客户是否会员
         public bool isPrint;                 //是否打印小票
@@ -31,8 +34,8 @@ namespace Sale
         public static float x2;
         public static float x3;
         private string SK = "";
-        private const string windowtitle = "阳光服饰收银系统";
-        private DataGridView LastDataGridView;
+        public string windowtitle;
+        public string address;
         public Worker worker
         {
             get { return _worker; }
@@ -46,24 +49,56 @@ namespace Sale
             isHuiYuan = false;
             this.hybh = "no";
             this.zqfs = "折扣";
-            this.isPrint = true;
+            this.isPrint = false;
             
+        }
+
+        private void Form_main_Load(object sender, EventArgs e)
+        {
             printer = new PrintDocument();
             printer.PrintController = new StandardPrintController();
             printer.DocumentName = "收银小票";
-            printer.PrintPage += printer_PrintPage;
-            printer.EndPrint += printer_EndPrint;
+            printer.PrintPage += printer_PrintPage;            
+            this.Text = this.windowtitle;
+            this.statusLabel_huiyuan.Text = this.not_hy;
+            this.toolStripStatusLabel1.Text = "当前收银员【未登录】";
+            this.toolStripStatusLabel2.Text = "是否打印小票【";
+            this.toolStripStatusLabel2.Text += isPrint ? "是】" : "否】";
         }
 
-        void printer_EndPrint(object sender, PrintEventArgs e)
+        private void Form_main_Shown(object sender, EventArgs e)
         {
-            
+            Form_start f = new Form_start();
+            if (f.ShowDialog(this) != DialogResult.OK)
+            {
+                this.Close();
+                return;
+            }
+            if (Form_main.printerName != string.Empty)
+            {
+                printer.PrinterSettings.PrinterName = Form_main.printerName;
+                isPrint = true;
+            }
+            this.toolStripStatusLabel1.Text = string.Format("当前收银员【{0}", worker.xm + "】");
+            var hWnd = FindWindow(null, "ClientSender");
+            if (IntPtr.Zero == hWnd)
+            {
+                try
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    Process.Start(Application.StartupPath + "\\ClientSender.exe");
+                }
+                catch (Exception se)
+                {
+                    MessageBox.Show("启动ClientSender出错！\r\n" + se.Message);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Default;
+                }
+            }
         }
 
-        public void DrawLine(Graphics g, float x, float y)
-        {
-            g.DrawString("---------------------------", Form_main.font, Brushes.Black, x, y);
-        }
         void printer_PrintPage(object sender, PrintPageEventArgs e)
         {
             if (dataGridView.RowCount < 1)
@@ -73,17 +108,15 @@ namespace Sale
             e.Graphics.SmoothingMode = SmoothingMode.HighQuality;
             Pen p = new Pen(Brushes.Black, 0.5f);
             p.DashStyle = DashStyle.Dash;
-            //Font font_title = new Font("宋体", 14.0f);//标题
-            //Font font = new Font("宋体", 9.0f);//内容    
             float width = 56.0f;        //纸张宽度mm
             float rh = 4.5f;            //行距
             float x, y;                 //绘制时的起始坐标
             y = 0.0f;
 
-            string title = "阳光服饰";
-            x = e.Graphics.MeasureString(title, Form_main.title).Width;
+            string text = this.windowtitle;
+            x = e.Graphics.MeasureString(text, Form_main.title).Width;
             x = (width - x) / 2f - 2f;
-            e.Graphics.DrawString(title, Form_main.title, Brushes.Black, x, y);
+            e.Graphics.DrawString(text, Form_main.title, Brushes.Black, x, y);
             //拉高字体
             //e.Graphics.ScaleTransform(1f, Form_main.fontHeight);
 
@@ -94,10 +127,8 @@ namespace Sale
 
             y += rh;
             e.Graphics.DrawLine(p, x, y, width - x, y);//划线
-            //this.DrawLine(e.Graphics, x, y);
             for (int i = 0; i < this.dataGridView.RowCount; i++)
             {
-                //y += 0.5f;
                 DataGridViewRow r = this.dataGridView.Rows[i];
                 //单行绘制品名
                 e.Graphics.DrawString((i + 1).ToString() + "." +
@@ -124,14 +155,9 @@ namespace Sale
                 e.Graphics.DrawString(this.dataGridView.Rows[i].Cells[4].Value.ToString(), font, Brushes.Black, x + x2 + 2.5f, y);
                 //je
                 e.Graphics.DrawString(this.dataGridView.Rows[i].Cells[5].Value.ToString(), font, Brushes.Black, x + x3 - 0.8f, y);
-                if (i != this.dataGridView.RowCount - 1)
-                {
-                    y += rh;
-                    e.Graphics.DrawLine(p, x, y, width - x, y);
-                }
+                y += rh;
+                e.Graphics.DrawLine(p, x, y, width - x, y);
             }
-            y += rh;
-            e.Graphics.DrawLine(p, x, y, width - x, y);//划线
             if (this.isHuiYuan)
             {
                 e.Graphics.DrawString("会员：" + this.hyxm, font, Brushes.Black, x, y);
@@ -139,8 +165,6 @@ namespace Sale
                 y += 4.0f;
             }
             float yszl = x + x2;
-            //if (this.textBox_je.TextLength > 3)
-            //    yszl = x + x2;
             e.Graphics.DrawString("合计：" + this.textBox_js.Text + "件", font, Brushes.Black, x, y);
             e.Graphics.DrawString("应收：" + this.textBox_je.Text, font, Brushes.Black, yszl, y);
 
@@ -151,13 +175,13 @@ namespace Sale
             y += 4.0f;
             e.Graphics.DrawString("收银：" + this.worker.bh + this.SK, font, Brushes.Black, x, y);//收银员
 
-            e.Graphics.DrawString("地址：天门多宝", font, Brushes.Black, yszl, y);
+            e.Graphics.DrawString("地址：" + this.address, font, Brushes.Black, yszl, y);
 
             y += rh;
-            title = "---凭此小票退换货---";
-            x = e.Graphics.MeasureString(title, font).Width;
+            text = "---凭此小票退换货---";
+            x = e.Graphics.MeasureString(text, font).Width;
             x = (width - x) / 2f - 2f;
-            e.Graphics.DrawString(title, font, Brushes.Black, x, y);
+            e.Graphics.DrawString(text, font, Brushes.Black, x, y);
         }
 
         private void textBox_tm_KeyDown(object sender, KeyEventArgs e)
@@ -189,10 +213,8 @@ namespace Sale
                 //F12 是否打印切换
                 case Keys.F12:
                     isPrint = !isPrint;
-                    if (isPrint)
-                        this.toolStripStatusLabel2.Text = "是否打印小票【是】";
-                    else
-                        this.toolStripStatusLabel2.Text = "是否打印小票【否】";
+                    if (printer == null) isPrint = false;
+                    this.toolStripStatusLabel2.Text = isPrint ? "是否打印小票【是】" : "是否打印小票【否】";
                     break;
 
                 //F10 更换收银员，此一功能针对一单笔中的一种商品而使用
@@ -273,12 +295,11 @@ namespace Sale
                         je = (float)Math.Round(je, 0, MidpointRounding.AwayFromZero);
                         row.Cells[3].Value = f.xje.ToString("0.00");// 新折扣
                         row.Cells[5].Value = je.ToString("0.00");//更新金额
-                        this.Add();
+                        this.MergeSameRows(row);
                     }
                 }
             }
         }
-
         private void EditJE(KeyEventArgs e)
         {
             if (e.Control)
@@ -300,19 +321,52 @@ namespace Sale
                         row.Cells[3].Value = zq.ToString("0.00");
                         //現金額
                         row.Cells[5].Value = Math.Round(f.xje, 0, MidpointRounding.AwayFromZero).ToString("0.00");
-                        this.Add();
+                        this.MergeSameRows(row);
                     }
                 }
             }
+        }
+        /// <summary>
+        /// 合并条码与折扣相同的行
+        /// </summary>
+        /// <param name="row">datagridview表格中当前行(同为负或同为正)</param>
+        private void MergeSameRows(DataGridViewRow row)
+        {
+            string tm = row.Cells[0].Value.ToString();
+            float zq = float.Parse(row.Cells[3].Value.ToString());
+            int sl = int.Parse(row.Cells[4].Value.ToString());
+            foreach (DataGridViewRow r in dataGridView.Rows)
+            {
+                if (r.Index == row.Index) continue;
+                var _tm = r.Cells[0].Value.ToString();
+                if (tm == _tm)
+                {
+                    var _zq = float.Parse(r.Cells[3].Value.ToString());
+                    if (zq == _zq)
+                    {
+                        var _sl = int.Parse(r.Cells[4].Value.ToString());
+                        if ((sl > 0 && _sl > 0) || (sl < 0 && _sl < 0))
+                        {
+                            sl += _sl;
+                            r.Cells[4].Value = sl;
+                            var je = float.Parse(r.Cells[2].Value.ToString()) * zq * sl;
+                            r.Cells[5].Value = Math.Round(je, 0, MidpointRounding.AwayFromZero).ToString("0.00");
+                            dataGridView.Rows.Remove(row);
+                            break;
+                        }
+                    }
+                }
+            }
+            this.Add();//更新累计数量和金额
         }
 
         private void EditDataGridViewCurrentCroSL_Add(KeyEventArgs e)
         {
             if (e.Control)
-            {                
+            {
                 if (this.dataGridView.CurrentRow != null)
                 {
-                    DataGridViewRow row = this.dataGridView.CurrentRow;
+                    DataGridViewRow row = this.dataGridView.Rows[dataGridView.Rows.Count - 1];
                     if (row == null)
                         return;
                     int sl = int.Parse(row.Cells[4].Value.ToString());
@@ -338,7 +392,7 @@ namespace Sale
             {
                 if (this.dataGridView.CurrentRow != null)
                 {
-                    DataGridViewRow row = this.dataGridView.CurrentRow;
+                    DataGridViewRow row = this.dataGridView.Rows[this.dataGridView.Rows.Count - 1];
                     if (row == null)
                         return;
                     int sl = int.Parse(row.Cells[4].Value.ToString());
@@ -376,7 +430,7 @@ namespace Sale
                         je = (float)Math.Round(je, 0, MidpointRounding.AwayFromZero);
                         row.Cells[4].Value = sl;
                         row.Cells[5].Value = je.ToString("0.00");
-                        this.Add();
+                        this.MergeSameRows(row);
                     }
                 }
             }
@@ -416,7 +470,6 @@ namespace Sale
         }
         private void KeyEnter()
         {
-
             if (this.textBox_tm.TextLength == 0 && this.dataGridView.RowCount > 0)
             {
                 ShouYing();
@@ -464,13 +517,29 @@ namespace Sale
                 case 3:
                 case 9:
                 case 13:
-                    if (this.IsTmInTable(this.textBox_tm.Text))
+
+                    var tm = this.textBox_tm.Text;
+                    if (tm.Length < 4)
+                    {
+                        var i = 0;
+                        if (int.TryParse(tm, out i))
+                        {
+                            tm = i.ToString("000");
+                            tm = "010101" + tm;
+                        }
+                        else
+                        {
+                            this.textBox_tm.SelectAll();
+                            break;
+                        }
+                    }
+                    if (this.IsTmInTable(tm))
                         break;
                     if (this.isHuiYuan)
                         Form_main.Command.CommandText = "select tm,pm,sj,hyzq from goods where tm=";
                     else
                         Form_main.Command.CommandText = "select tm,pm,sj,zq from goods where tm=";
-                    Form_main.Command.CommandText += "'" + this.textBox_tm.Text + "'";
+                    Form_main.Command.CommandText += "'" + tm + "'";
 
                     MySqlDataReader reader = Form_main.Command.ExecuteReader();
                     if (reader.Read())
@@ -509,8 +578,8 @@ namespace Sale
             //f.Document = printer;
             // f.TopMost = true;
             //  f.ShowDialog(this);
-
-            printer.Print();
+            if (printer != null)
+                printer.Print();
         }
         /// <summary>
         /// 打开收银窗口
@@ -641,27 +710,6 @@ namespace Sale
             this.textBox_je.Text = je.ToString("0.00");
         }
 
-        private void Form_main_Load(object sender, EventArgs e)
-        {
-            this.statusLabel_huiyuan.Text = this.not_hy;
-            this.toolStripStatusLabel1.Text = "当前收银员【未登录】";
-            this.toolStripStatusLabel2.Text = "是否打印小票【";
-            if (isPrint)
-                this.toolStripStatusLabel2.Text += "是】";
-            else
-                this.toolStripStatusLabel2.Text += "否】";
-        }
-
-        private void Form_main_Shown(object sender, EventArgs e)
-        {
-
-            Form_start f = new Form_start();
-            if (f.ShowDialog(this) != DialogResult.OK)
-                this.Close();
-
-            this.toolStripStatusLabel1.Text = string.Format("当前收银员【{0}", worker.xm + "】");
-        }
-
         private void dataGridView_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
@@ -740,6 +788,37 @@ namespace Sale
         private void Form_main_FormClosed(object sender, FormClosedEventArgs e)
         {
             Form_main.Connection.Close();
+        }
+
+        private void textBox_tm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsNumber(e.KeyChar) || e.KeyChar == (char)Keys.Back || e.KeyChar == (char)Keys.Enter)
+            {
+                e.Handled = false;
+            }
+            else
+            {
+                e.Handled = true;
+            }
+        }
+
+        [DllImport("user32.dll")]
+        private static extern long SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [DllImport("user32.dll", EntryPoint = "FindWindow")]
+        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+        private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            var pn = Process.GetCurrentProcess().ProcessName;
+            var ps = Process.GetProcessesByName(pn);
+            if (ps.Length == 1)
+            {
+                var hWnd = FindWindow(null, "ClientSender");
+                if (IntPtr.Zero != hWnd)
+                {
+                    SendMessage(hWnd, 0x11, 0x11, 0x11);
+                }
+            }
         }
     }
 }

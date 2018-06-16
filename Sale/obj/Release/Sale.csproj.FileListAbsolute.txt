@@ -11,3 +11,16 @@ D:\Sale\Sale\obj\Release\Sale.Properties.Resources.resources
 D:\Sale\Sale\obj\Release\Sale.csproj.GenerateResource.Cache
 D:\Sale\Sale\obj\Release\Sale.exe
 D:\Sale\Sale\obj\Release\Sale.pdb
+D:\Soft\Sale\Sale\bin\Release\Sale.exe.config
+D:\Soft\Sale\Sale\obj\Release\Sale.exe
+D:\Soft\Sale\Sale\obj\Release\Sale.pdb
+D:\Soft\Sale\Sale\bin\Release\Sale.exe
+D:\Soft\Sale\Sale\bin\Release\Sale.pdb
+D:\Soft\Sale\Sale\obj\Release\Sale.csprojResolveAssemblyReference.cache
+D:\Soft\Sale\Sale\obj\Release\Sale.Form_edit_je.resources
+D:\Soft\Sale\Sale\obj\Release\Sale.Form_find_people.resources
+D:\Soft\Sale\Sale\obj\Release\Sale.Form_main.resources
+D:\Soft\Sale\Sale\obj\Release\Sale.Form_shouying.resources
+D:\Soft\Sale\Sale\obj\Release\Sale.Form_start.resources
+D:\Soft\Sale\Sale\obj\Release\Sale.Properties.Resources.resources
+D:\Soft\Sale\Sale\obj\Release\Sale.csproj.GenerateResource.Cache

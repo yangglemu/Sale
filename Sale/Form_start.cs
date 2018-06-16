@@ -25,7 +25,7 @@ namespace Sale
         {
             conn = Form_main.Connection;
             comm = Form_main.Command;
-            comm.CommandText = "select bh,xm,mm from worker";
+            comm.CommandText = "select bh,xm,mm from worker where `show`";
             MySqlDataReader dr = comm.ExecuteReader();
             while(dr.Read())
             {
