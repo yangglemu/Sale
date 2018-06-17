@@ -50,7 +50,7 @@ namespace Sale
             this.hybh = "no";
             this.zqfs = "折扣";
             this.isPrint = false;
-            
+
         }
 
         private void Form_main_Load(object sender, EventArgs e)
@@ -58,7 +58,7 @@ namespace Sale
             printer = new PrintDocument();
             printer.PrintController = new StandardPrintController();
             printer.DocumentName = "收银小票";
-            printer.PrintPage += printer_PrintPage;            
+            printer.PrintPage += printer_PrintPage;
             this.Text = this.windowtitle;
             this.statusLabel_huiyuan.Text = this.not_hy;
             this.toolStripStatusLabel1.Text = "当前收银员【未登录】";
@@ -809,8 +809,7 @@ namespace Sale
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
         private void Form_main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            var pn = Process.GetCurrentProcess().ProcessName;
-            var ps = Process.GetProcessesByName(pn);
+            var ps = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
             if (ps.Length == 1)
             {
                 var hWnd = FindWindow(null, "ClientSender");
