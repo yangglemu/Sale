@@ -57,7 +57,7 @@ namespace Sale
             temp = root.SelectSingleNode("/config/position/x3");
             Form_main.x3 = float.Parse(temp.InnerText);
             var mf = new Form_main();
-            mf.windowtitle = root.SelectSingleNode("/config/name").InnerText;
+            mf.windowtitle = root.SelectSingleNode("/config/shop").InnerText;
             mf.address = root.SelectSingleNode("/config/address").InnerText;
             var name = root.SelectSingleNode("/config/printer").InnerText;
             if (name != null)
