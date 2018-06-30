@@ -1,0 +1,8 @@
+#self
+*.suo
+
+#bin
+/*/bin/
+
+#obj
+/*/obj/
