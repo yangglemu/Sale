@@ -656,8 +656,9 @@ namespace Sale
                 if (this.isHuiYuan)
                 {
                     this.hyjf += (int)float.Parse(this.textBox_je.Text);
-                    Form_main.Command.CommandText = "update people set jf=" + this.hyjf.ToString() + ", ";
-                    Form_main.Command.CommandText += "ljxf=ljxf+" + this.textBox_je.Text + " ";
+                    var jf = float.Parse(this.textBox_je.Text);
+                    Form_main.Command.CommandText = "update people set ";
+                    Form_main.Command.CommandText += "jf=jf+" + (int)jf + " ";
                     Form_main.Command.CommandText += "where bh='" + this.hybh + "'";
                     Form_main.Command.ExecuteNonQuery();
                 }
