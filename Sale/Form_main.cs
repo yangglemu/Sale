@@ -61,9 +61,7 @@ namespace Sale
             printer.PrintPage += printer_PrintPage;
             this.Text = this.windowtitle;
             this.statusLabel_huiyuan.Text = this.not_hy;
-            this.toolStripStatusLabel1.Text = "当前收银员【未登录】";
-            this.toolStripStatusLabel2.Text = "是否打印小票【";
-            this.toolStripStatusLabel2.Text += isPrint ? "是】" : "否】";
+            this.toolStripStatusLabel1.Text = "当前收银员【未登录】";            
         }
 
         private void Form_main_Shown(object sender, EventArgs e)
@@ -79,6 +77,8 @@ namespace Sale
                 printer.PrinterSettings.PrinterName = Form_main.printerName;
                 isPrint = true;
             }
+            this.toolStripStatusLabel2.Text = "是否打印小票【";
+            this.toolStripStatusLabel2.Text += isPrint ? "是】" : "否】";
             this.toolStripStatusLabel1.Text = string.Format("当前收银员【{0}", worker.xm + "】");
             var hWnd = FindWindow(null, "ClientSender");
             if (IntPtr.Zero == hWnd)
@@ -175,7 +175,7 @@ namespace Sale
             y += 4.0f;
             e.Graphics.DrawString("收银：" + this.worker.bh + this.SK, font, Brushes.Black, x, y);//收银员
 
-            e.Graphics.DrawString("地址：" + this.address, font, Brushes.Black, yszl, y);
+            e.Graphics.DrawString("地址：" + this.address, font, Brushes.Black, yszl-6, y);
 
             y += rh;
             text = "---凭此小票退换货---";
