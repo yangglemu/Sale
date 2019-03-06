@@ -516,6 +516,7 @@ namespace Sale
                 case 2:
                 case 3:
                 case 9:
+                case 10:
                 case 13:
 
                     var tm = this.textBox_tm.Text;
