@@ -47,6 +47,7 @@ namespace Sale
             InitializeComponent();
 
             isHuiYuan = false;
+            this.hyjf = 0;
             this.hybh = "no";
             this.zqfs = "折扣";
             this.isPrint = false;
@@ -61,7 +62,7 @@ namespace Sale
             printer.PrintPage += printer_PrintPage;
             this.Text = this.windowtitle;
             this.statusLabel_huiyuan.Text = this.not_hy;
-            this.toolStripStatusLabel1.Text = "当前收银员【未登录】";            
+            this.toolStripStatusLabel1.Text = "当前收银员【未登录】";
         }
 
         private void Form_main_Shown(object sender, EventArgs e)
@@ -175,7 +176,7 @@ namespace Sale
             y += 4.0f;
             e.Graphics.DrawString("收银：" + this.worker.bh + this.SK, font, Brushes.Black, x, y);//收银员
 
-            e.Graphics.DrawString("地址：" + this.address, font, Brushes.Black, yszl-6, y);
+            e.Graphics.DrawString("地址：" + this.address, font, Brushes.Black, yszl - 6, y);
 
             y += rh;
             text = "---凭此小票退换货---";
@@ -655,11 +656,10 @@ namespace Sale
                 //插入huiyuan会员表（积分）
                 if (this.isHuiYuan)
                 {
-                    this.hyjf += (int)float.Parse(this.textBox_je.Text);
-                    var jf = float.Parse(this.textBox_je.Text);
+                    var jf = (int)float.Parse(this.textBox_je.Text);
                     Form_main.Command.CommandText = "update people set ";
-                    Form_main.Command.CommandText += "jf=jf+" + (int)jf + " ";
-                    Form_main.Command.CommandText += "where bh='" + this.hybh + "'";
+                    Form_main.Command.CommandText += "jf=jf+" + jf + ", ljxf=ljxf+" + jf;
+                    Form_main.Command.CommandText += " where bh='" + this.hybh + "'";
                     Form_main.Command.ExecuteNonQuery();
                 }
             }
@@ -681,9 +681,9 @@ namespace Sale
             this.dataGridView.Rows.Clear();
             this.textBox_js.Text = "";
             this.textBox_je.Text = "";
-            this.zqfs = "折扣";
+            //this.zqfs = "折扣";
             this.SK = "";
-            this.statusLabel_huiyuan.Text = this.not_hy;
+            //this.statusLabel_huiyuan.Text = this.not_hy;
 
         }
         public void ClearPeople()

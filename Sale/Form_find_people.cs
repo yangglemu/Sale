@@ -113,7 +113,9 @@ namespace Sale
         private void button1_Click(object sender, EventArgs e)
         {
             Form_main main = this.Owner as Form_main;
-            
+            main.ClearPeople();
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
         }
     }
 }

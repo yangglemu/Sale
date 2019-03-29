@@ -27,9 +27,7 @@ namespace Sale
             this.bh = null;
             this.xm = null;
             this.jf = 0;
-            this.enable = false;
-
-            
+            this.enable = false;            
         }
         public People(string bh, string xm, int jf, bool enable)
         {
