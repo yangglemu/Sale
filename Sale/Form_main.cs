@@ -656,7 +656,7 @@ namespace Sale
                 //插入huiyuan会员表（积分）
                 if (this.isHuiYuan)
                 {
-                    var jf = (int)float.Parse(this.textBox_je.Text);
+                    var jf = this.GetJF();
                     Form_main.Command.CommandText = "update people set ";
                     Form_main.Command.CommandText += "jf=jf+" + jf + ", ljxf=ljxf+" + jf;
                     Form_main.Command.CommandText += " where bh='" + this.hybh + "'";
@@ -672,7 +672,19 @@ namespace Sale
             //提交事务
             transaction.Commit();
         }
-
+        private int GetJF()
+        {
+            var je = 0;
+            var str = "1.00";
+            foreach (DataGridViewRow row in this.dataGridView.Rows)
+            {
+                if (row.Cells[3].Value.ToString() == str)
+                {
+                    je += (int)float.Parse(row.Cells[5].Value.ToString());
+                }
+            }
+            return je;
+        }
         public void ResetData()
         {
             //备份上笔交易数据备用
